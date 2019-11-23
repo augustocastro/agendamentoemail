@@ -1,6 +1,7 @@
 package br.com.alura.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -20,40 +21,37 @@ public class AgendamentoEmailDao {
 		entityManager.persist(agendamentoEmail);
 	}
 
+	public void excluirAgendamentoEmail(Long id) throws AgendamentoEmailNotFoundException {
+		AgendamentoEmail agendamentoEmail = buscarAgendamentoEmailPorId(id);
+		entityManager.remove(agendamentoEmail);
+	}
+
 	public List<AgendamentoEmail> listarAgendamentosEmail() {
 		String jpql = "SELECT a FROM AgendamentoEmail a";
-		
-		return entityManager
-				.createQuery(jpql, AgendamentoEmail.class)
-				.getResultList();
+		return entityManager.createQuery(jpql, AgendamentoEmail.class).getResultList();
 	}
-	
+
+	public AgendamentoEmail buscarAgendamentoEmailPorId(Long id) throws AgendamentoEmailNotFoundException {
+		AgendamentoEmail agendamentoEmail = entityManager.find(AgendamentoEmail.class, id);
+		
+		return Optional.ofNullable(agendamentoEmail).orElseThrow(
+				() -> new AgendamentoEmailNotFoundException(String.format("O registro id %s não foi encontrado", id)));
+	}
+
 	public List<AgendamentoEmail> listarAgendamentosEmailPorEmail(String email) {
 		StringBuilder jpql = new StringBuilder();
 		jpql.append("SELECT a FROM AgendamentoEmail a ");
 		jpql.append("WHERE a.email = :email AND a.enviado = false");
-		
-		TypedQuery<AgendamentoEmail> query = entityManager
-				.createQuery(jpql.toString(), AgendamentoEmail.class);
-		
+
+		TypedQuery<AgendamentoEmail> query = entityManager.createQuery(jpql.toString(), AgendamentoEmail.class);
 		query.setParameter("email", email);
-		
+
 		return query.getResultList();
 	}
-	
-	public AgendamentoEmail buscarAgendamentoEmailPorId(Long id) throws AgendamentoEmailNotFoundException {
-		AgendamentoEmail agendamentoEmail = entityManager.find(AgendamentoEmail.class, id);
-		
-		if (agendamentoEmail != null) {
-			return agendamentoEmail;
-		}
-		
-		throw new AgendamentoEmailNotFoundException(String.format("O agendamento email de id %s não foi encontrado", id));
-	}
-	
-	public void excluirAgendamentoEmail(Long id) throws AgendamentoEmailNotFoundException {
-		AgendamentoEmail agendamentoEmail = buscarAgendamentoEmailPorId(id);
-		entityManager.remove(agendamentoEmail);
+
+	public List<AgendamentoEmail> buscarAgendamentosEmailNaoEnviados() {
+		String jpql = "SELECT a FROM AgendamentoEmail a WHERE a.enviado = false";
+		return entityManager.createQuery(jpql, AgendamentoEmail.class).getResultList();
 	}
 
 }
