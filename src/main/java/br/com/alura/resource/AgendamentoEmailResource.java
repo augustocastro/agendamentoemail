@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import br.com.alura.business.AgendamentoEmailBusiness;
 import br.com.alura.entity.AgendamentoEmail;
 import br.com.alura.exception.AgendamentoEmailNotFoundException;
-import br.com.alura.exception.BusinessException;
+import br.com.alura.exception.EmailDuplicadoException;
 import br.com.alura.interception.Logger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,7 +46,7 @@ public class AgendamentoEmailResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response salvarAgendamentoEmail(
 			@ApiParam(value = "Agendamento Email", name = "agendamentoEmail", required = true) AgendamentoEmail agendamentoEmail)
-			throws BusinessException {
+			throws EmailDuplicadoException {
 		agendamentoEmailBusiness.salvarAgendamentoEmail(agendamentoEmail);
 		return Response.status(201).build();
 	}
@@ -59,7 +59,7 @@ public class AgendamentoEmailResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response excluirAgendamentoEmail(
 			@ApiParam(name = "id", required = true) @PathParam("id") Long id)
-			throws BusinessException, AgendamentoEmailNotFoundException {
+			throws EmailDuplicadoException, AgendamentoEmailNotFoundException {
 		agendamentoEmailBusiness.excluirAgendamentoEmail(id);
 		return Response.status(200).build();
 	}

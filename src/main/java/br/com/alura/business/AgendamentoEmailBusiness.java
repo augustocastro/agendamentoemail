@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import br.com.alura.dao.AgendamentoEmailDao;
 import br.com.alura.entity.AgendamentoEmail;
 import br.com.alura.exception.AgendamentoEmailNotFoundException;
-import br.com.alura.exception.BusinessException;
+import br.com.alura.exception.EmailDuplicadoException;
 
 @Stateless
 public class AgendamentoEmailBusiness {
@@ -21,12 +21,12 @@ public class AgendamentoEmailBusiness {
 		return agendamentoEmailDao.listarAgendamentosEmail();
 	}
 
-	public void salvarAgendamentoEmail(@Valid AgendamentoEmail agendamentoEmail) throws BusinessException {
+	public void salvarAgendamentoEmail(@Valid AgendamentoEmail agendamentoEmail) throws EmailDuplicadoException {
 		List<AgendamentoEmail> agendamentosEmail = agendamentoEmailDao
 				.listarAgendamentosEmailPorEmail(agendamentoEmail.getEmail());
 		
 		if (!agendamentosEmail.isEmpty()) {			
-			throw new BusinessException("Já foi feito o agendamento com este email.");
+			throw new EmailDuplicadoException("Já foi feito o agendamento com este email.");
 		}
 		
 		agendamentoEmail.setEnviado(false);

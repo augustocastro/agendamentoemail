@@ -3,7 +3,7 @@ package br.com.alura.exception;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BusinessException extends Exception {
+public class EmailDuplicadoException extends Exception {
 
 	/**
 	 * 
@@ -12,11 +12,11 @@ public class BusinessException extends Exception {
 
 	private List<String> mensagens;
 
-	public BusinessException() {
+	public EmailDuplicadoException() {
 		this.mensagens = new ArrayList<String>();
 	}
 
-	public BusinessException(String mensagem) {
+	public EmailDuplicadoException(String mensagem) {
 		super(mensagem);
 		this.mensagens = new ArrayList<String>();
 		this.mensagens.add(mensagem);
