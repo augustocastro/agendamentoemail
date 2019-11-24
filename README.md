@@ -15,7 +15,21 @@
 - WildFly 15
 
 
-##### Datasource
+##### *Acessar jboss-cli*
+Execute jboss-cli.bat --connect na pasta bin onde se encontra o seu WildFly.
+
+
+##### Database no MySQL
+```
+CREATE USER 'agendamento'@'localhost' IDENTIFIED BY 'agendamento';
+GRANT ALL PRIVILEGES ON * . * TO 'agendamento'@'localhost';
+CREATE DATABASE agendamentobd;
+```
+
+##### Datasource no WildFly
+
+Criar manualmente no arquivo standalone.xml:
+
 ```
 <datasource jta="true"
 	jndi-name="java:jboss/datasources/AgendamentoDS" pool-name="AgendamentoDS"
@@ -45,15 +59,23 @@
 </driver>
 ```
 
-##### Database
+Criar usando o jboss-cli:
+
 ```
-CREATE USER 'agendamento'@'localhost' IDENTIFIED BY 'agendamento';
-GRANT ALL PRIVILEGES ON * . * TO 'agendamento'@'localhost';
-CREATE DATABASE agendamentobd;
+module add --name=com.mysql --resources=/path/to/mysql-connector-java-8.0.15.jar --dependencies=javax.api,javax.transaction.api
+
+```
+
+```
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql,driver-xa-datasource-class-name=com.mysql.cj.jdbc.MysqlXADataSource)
+```
+
+```
+data-source add --name=AgendamentoDS --jndi-name=java:jboss/datasources/AgendamentoDS --driver-name=mysql  --connection-url=jdbc:mysql://localhost:3306/agendamentobd --user-name=SEU-USUARIO --password=SUA-SENHA --min-pool-size=10 --max-pool-size=20
+
 ```
 
 ##### JavaMail no WildFly
-Execute jboss-cli.bat --connect na pasta bin onde se encontra o seu WildFly, estando dentro do jboss-cli execute os seguintes comandos:
 
 ```
 /subsystem=mail/mail-session=agendamentoMailSession:add(jndi-name=java:jboss/mail/AgendamentoMailSession)
@@ -67,6 +89,31 @@ Execute jboss-cli.bat --connect na pasta bin onde se encontra o seu WildFly, est
 ```
 /subsystem=mail/mail-session=agendamentoMailSession/server=smtp:add(outbound-socket-binding-ref= my-smtp-binding, username=bc82647d48b758, password=6320632ea13bd1, tls=true)
 
+```
+
+##### JMS no WildFly
+
+```
+jms-queue add --queue-address=EmailQueue --entries=java:/jms/queue/EmailQueue
+
+```
+
+Verificar se as mensagens foram enviadas para a fila JMS:
+
+```
+jms-queue list-messages --queue-address=EmailQueue
+```
+
+Verificar se os emails foram enviados aos respectivos destinatários:
+
+```
+/subsystem=messaging-activemq/server=default/jms-queue=EmailQueue:list-messages
+```
+
+Verificar se as mensagens foram enviadas para a fila de erro caso tenha ocorrido algum ao tentar enviar o email:
+
+```
+/subsystem=messaging-activemq/server=default/jms-queue=DLQ:list-messages
 ```
 
 ##### Console Swagger

@@ -1,5 +1,7 @@
 package br.com.alura.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -7,22 +9,27 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Entity
-public class AgendamentoEmail {
+public class AgendamentoEmail implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue
 	private Long id;
-	
+
 	@NotBlank(message = "{agendamentoEmail.email.vazio}")
 	@Email(message = "{agendamentoEmail.email.invalido}")
 	private String email;
-	
+
 	@NotBlank(message = "{agendamentoEmail.mensagem.vazio}")
 	private String mensagem;
-	
+
 	@NotBlank(message = "{agendamentoEmail.assunto.vazio}")
 	private String assunto;
-	
+
 	private Boolean enviado;
 
 	public Long getId() {

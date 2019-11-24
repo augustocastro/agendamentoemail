@@ -25,6 +25,10 @@ public class AgendamentoEmailDao {
 		AgendamentoEmail agendamentoEmail = buscarAgendamentoEmailPorId(id);
 		entityManager.remove(agendamentoEmail);
 	}
+	
+	public void atualizarAgendamentoEmail(AgendamentoEmail agendamentoEmail) {
+		entityManager.merge(agendamentoEmail);
+	}
 
 	public List<AgendamentoEmail> listarAgendamentosEmail() {
 		String jpql = "SELECT a FROM AgendamentoEmail a";

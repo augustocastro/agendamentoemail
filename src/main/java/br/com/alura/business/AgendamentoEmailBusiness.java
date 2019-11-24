@@ -37,7 +37,7 @@ public class AgendamentoEmailBusiness {
 	public void salvarAgendamentoEmail(@Valid AgendamentoEmail agendamentoEmail) throws EmailDuplicadoException {
 		List<AgendamentoEmail> agendamentosEmail = agendamentoEmailDao
 				.listarAgendamentosEmailPorEmail(agendamentoEmail.getEmail());
-
+		
 		if (!agendamentosEmail.isEmpty()) {
 			throw new EmailDuplicadoException("Agendamento já realizado com este email.");
 		}
@@ -50,19 +50,22 @@ public class AgendamentoEmailBusiness {
 		agendamentoEmailDao.excluirAgendamentoEmail(id);
 	}
 
+	public void marcarAgendamentoEmailComoEnviado(AgendamentoEmail agendamentoEmail) {
+		agendamentoEmail.setEnviado(true);
+		agendamentoEmailDao.atualizarAgendamentoEmail(agendamentoEmail);
+	}
+	
 	public List<AgendamentoEmail> buscarAgendamentosEmailNaoEnviados() {
 		return agendamentoEmailDao.buscarAgendamentosEmailNaoEnviados();
 	}
 
 	public void enviarEmail(AgendamentoEmail agendamentoEmail) {
 		try {
-			System.out.println("TESTE");
 			MimeMessage mensagem = new MimeMessage(sessaoEmail);
 			mensagem.setFrom(sessaoEmail.getProperty(EMAIL_FROM));
 			mensagem.setRecipients(Message.RecipientType.TO, agendamentoEmail.getEmail());
 			mensagem.setSubject(agendamentoEmail.getAssunto());
 			mensagem.setText(Optional.ofNullable(agendamentoEmail.getMensagem()).orElse(""));
-
 			Transport.send(mensagem, sessaoEmail.getProperty(EMAIL_USER), sessaoEmail.getProperty(EMAIL_PASSWORD));
 		} catch (MessagingException e) {
 			throw new RuntimeException(e);
