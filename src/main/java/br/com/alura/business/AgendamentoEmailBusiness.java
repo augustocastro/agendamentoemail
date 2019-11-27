@@ -5,6 +5,10 @@ import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -17,8 +21,11 @@ import br.com.alura.dao.AgendamentoEmailDao;
 import br.com.alura.entity.AgendamentoEmail;
 import br.com.alura.exception.AgendamentoEmailNotFoundException;
 import br.com.alura.exception.EmailDuplicadoException;
+import br.com.alura.interception.Logger;
 
 @Stateless
+@Logger
+@TransactionManagement(TransactionManagementType.CONTAINER)
 public class AgendamentoEmailBusiness {
 
 	@Resource(lookup = "java:jboss/mail/AgendamentoMailSession")
@@ -34,14 +41,9 @@ public class AgendamentoEmailBusiness {
 		return agendamentoEmailDao.listarAgendamentosEmail();
 	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void salvarAgendamentoEmail(@Valid AgendamentoEmail agendamentoEmail) throws EmailDuplicadoException {
-		List<AgendamentoEmail> agendamentosEmail = agendamentoEmailDao
-				.listarAgendamentosEmailPorEmail(agendamentoEmail.getEmail());
-		
-		if (!agendamentosEmail.isEmpty()) {
-			throw new EmailDuplicadoException("Agendamento já realizado com este email.");
-		}
-
+		verificarEmailDuplicado(agendamentoEmail.getEmail());
 		agendamentoEmail.setEnviado(false);
 		agendamentoEmailDao.salvarAgendamentoEmail(agendamentoEmail);
 	}
@@ -57,6 +59,15 @@ public class AgendamentoEmailBusiness {
 	
 	public List<AgendamentoEmail> buscarAgendamentosEmailNaoEnviados() {
 		return agendamentoEmailDao.buscarAgendamentosEmailNaoEnviados();
+	}
+	
+	private void verificarEmailDuplicado(String email) throws EmailDuplicadoException {
+		List<AgendamentoEmail> agendamentosEmail = agendamentoEmailDao
+				.listarAgendamentosEmailPorEmail(email);
+		
+		if (!agendamentosEmail.isEmpty()) {
+			throw new EmailDuplicadoException("Agendamento já realizado com este email.");
+		}
 	}
 
 	public void enviarEmail(AgendamentoEmail agendamentoEmail) {

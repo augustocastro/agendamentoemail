@@ -3,6 +3,9 @@ package br.com.alura.exception;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.ApplicationException;
+
+@ApplicationException(rollback = true)
 public class EmailDuplicadoException extends Exception {
 
 	/**
